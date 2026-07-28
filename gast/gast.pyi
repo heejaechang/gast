@@ -10,7 +10,11 @@ from typing import TypeVar as _TypeVar
 from typing import overload as _overload
 
 if sys.version_info >= (3, 10):
-    from types import EllipsisType as _EllipsisType
+    from types import (
+        EllipsisType as _EllipsisType,
+        GenericAlias as _GenericAlias,
+        UnionType as _UnionType,
+    )
 else:
     from builtins import ellipsis as _EllipsisType
 
@@ -61,6 +65,11 @@ if sys.version_info >= (3, 14):
 _T = _TypeVar("_T", bound=AST)
 _Pattern = pattern
 
+if sys.version_info >= (3, 10):
+    _FieldType = type | _GenericAlias | _UnionType | str
+else:
+    _FieldType = _Never
+
 _Source = str | bytes | bytearray | memoryview
 _Filename = str | bytes | _os.PathLike[str] | _os.PathLike[bytes]
 _LiteralValue = (
@@ -80,7 +89,7 @@ _LiteralValue = (
 
 class Module(mod):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     body: list[stmt]
     type_ignores: list[TypeIgnore | type_ignore]
@@ -97,7 +106,7 @@ class Module(mod):
 
 class Interactive(mod):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     body: list[stmt]
     @_overload
@@ -111,7 +120,7 @@ class Interactive(mod):
 
 class Expression(mod):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     body: expr
     @_overload
@@ -125,7 +134,7 @@ class Expression(mod):
 
 class FunctionType(mod):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     argtypes: list[expr]
     returns: expr
@@ -142,7 +151,7 @@ class FunctionType(mod):
 
 class Suite(mod):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     body: list[stmt]
     @_overload
@@ -156,7 +165,7 @@ class Suite(mod):
 
 class FunctionDef(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     name: str
     args: arguments
@@ -191,7 +200,7 @@ class FunctionDef(stmt):
 
 class AsyncFunctionDef(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     name: str
     args: arguments
@@ -226,7 +235,7 @@ class AsyncFunctionDef(stmt):
 
 class ClassDef(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     name: str
     bases: list[expr]
@@ -258,7 +267,7 @@ class ClassDef(stmt):
 
 class Return(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     value: expr | None
     @_overload
@@ -275,7 +284,7 @@ class Return(stmt):
 
 class Delete(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     targets: list[expr]
     @_overload
@@ -292,7 +301,7 @@ class Delete(stmt):
 
 class Assign(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     targets: list[expr]
     value: expr
@@ -315,7 +324,7 @@ class Assign(stmt):
 
 class TypeAlias(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     name: expr
     type_params: list[type_param]
@@ -338,7 +347,7 @@ class TypeAlias(stmt):
 
 class AugAssign(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     target: expr
     op: operator
@@ -361,7 +370,7 @@ class AugAssign(stmt):
 
 class AnnAssign(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     target: expr
     annotation: expr
@@ -387,7 +396,7 @@ class AnnAssign(stmt):
 
 class Print(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     dest: expr | None
     values: list[expr]
@@ -410,7 +419,7 @@ class Print(stmt):
 
 class For(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     target: expr
     iter: expr
@@ -439,7 +448,7 @@ class For(stmt):
 
 class AsyncFor(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     target: expr
     iter: expr
@@ -468,7 +477,7 @@ class AsyncFor(stmt):
 
 class While(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     test: expr
     body: list[stmt]
@@ -491,7 +500,7 @@ class While(stmt):
 
 class If(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     test: expr
     body: list[stmt]
@@ -514,7 +523,7 @@ class If(stmt):
 
 class With(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     items: list[withitem]
     body: list[stmt]
@@ -537,7 +546,7 @@ class With(stmt):
 
 class AsyncWith(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     items: list[withitem]
     body: list[stmt]
@@ -560,7 +569,7 @@ class AsyncWith(stmt):
 
 class Match(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     subject: expr
     cases: list[match_case]
@@ -580,7 +589,7 @@ class Match(stmt):
 
 class Raise(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     exc: expr | None
     cause: expr | None
@@ -600,7 +609,7 @@ class Raise(stmt):
 
 class Try(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     body: list[stmt]
     handlers: list[ExceptHandler]
@@ -626,7 +635,7 @@ class Try(stmt):
 
 class TryStar(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     body: list[stmt]
     handlers: list[ExceptHandler]
@@ -652,7 +661,7 @@ class TryStar(stmt):
 
 class Assert(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     test: expr
     msg: expr | None
@@ -672,7 +681,7 @@ class Assert(stmt):
 
 class Import(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     names: list[alias]
     @_overload
@@ -689,7 +698,7 @@ class Import(stmt):
 
 class ImportFrom(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     module: str | None
     names: list[alias]
@@ -712,7 +721,7 @@ class ImportFrom(stmt):
 
 class Exec(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     body: expr
     globals: expr | None
@@ -735,7 +744,7 @@ class Exec(stmt):
 
 class Global(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     names: list[str]
     @_overload
@@ -752,7 +761,7 @@ class Global(stmt):
 
 class Nonlocal(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     names: list[str]
     @_overload
@@ -769,7 +778,7 @@ class Nonlocal(stmt):
 
 class Expr(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     value: expr
     @_overload
@@ -786,7 +795,7 @@ class Expr(stmt):
 
 class Pass(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, lineno: int | None = ..., col_offset: int | None = ..., end_lineno: int | None = ..., end_col_offset: int | None = ..., **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -796,7 +805,7 @@ class Pass(stmt):
 
 class Break(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, lineno: int | None = ..., col_offset: int | None = ..., end_lineno: int | None = ..., end_col_offset: int | None = ..., **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -806,7 +815,7 @@ class Break(stmt):
 
 class Continue(stmt):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, lineno: int | None = ..., col_offset: int | None = ..., end_lineno: int | None = ..., end_col_offset: int | None = ..., **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -816,7 +825,7 @@ class Continue(stmt):
 
 class BoolOp(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     op: boolop
     values: list[expr]
@@ -836,7 +845,7 @@ class BoolOp(expr):
 
 class NamedExpr(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     target: expr
     value: expr
@@ -856,7 +865,7 @@ class NamedExpr(expr):
 
 class BinOp(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     left: expr
     op: operator
@@ -879,7 +888,7 @@ class BinOp(expr):
 
 class UnaryOp(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     op: unaryop
     operand: expr
@@ -899,7 +908,7 @@ class UnaryOp(expr):
 
 class Lambda(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     args: arguments
     body: expr
@@ -919,7 +928,7 @@ class Lambda(expr):
 
 class IfExp(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     test: expr
     body: expr
@@ -942,7 +951,7 @@ class IfExp(expr):
 
 class Dict(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     keys: list[expr | None]
     values: list[expr]
@@ -962,7 +971,7 @@ class Dict(expr):
 
 class Set(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     elts: list[expr]
     @_overload
@@ -979,7 +988,7 @@ class Set(expr):
 
 class ListComp(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     elt: expr
     generators: list[comprehension]
@@ -999,7 +1008,7 @@ class ListComp(expr):
 
 class SetComp(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     elt: expr
     generators: list[comprehension]
@@ -1019,7 +1028,7 @@ class SetComp(expr):
 
 class DictComp(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     key: expr
     value: expr
@@ -1042,7 +1051,7 @@ class DictComp(expr):
 
 class GeneratorExp(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     elt: expr
     generators: list[comprehension]
@@ -1062,7 +1071,7 @@ class GeneratorExp(expr):
 
 class Await(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     value: expr
     @_overload
@@ -1079,7 +1088,7 @@ class Await(expr):
 
 class Yield(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     value: expr | None
     @_overload
@@ -1096,7 +1105,7 @@ class Yield(expr):
 
 class YieldFrom(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     value: expr
     @_overload
@@ -1113,7 +1122,7 @@ class YieldFrom(expr):
 
 class Compare(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     left: expr
     ops: list[cmpop]
@@ -1136,7 +1145,7 @@ class Compare(expr):
 
 class Call(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     func: expr
     args: list[expr]
@@ -1159,7 +1168,7 @@ class Call(expr):
 
 class Repr(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     value: expr
     @_overload
@@ -1176,7 +1185,7 @@ class Repr(expr):
 
 class FormattedValue(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     value: expr
     conversion: int
@@ -1199,7 +1208,7 @@ class FormattedValue(expr):
 
 class Interpolation(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     value: expr
     str: _builtins.str | None
@@ -1225,7 +1234,7 @@ class Interpolation(expr):
 
 class JoinedStr(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     values: list[expr]
     @_overload
@@ -1242,7 +1251,7 @@ class JoinedStr(expr):
 
 class TemplateStr(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     values: list[expr]
     @_overload
@@ -1259,7 +1268,7 @@ class TemplateStr(expr):
 
 class Constant(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     value: object
     kind: str | None
@@ -1279,7 +1288,7 @@ class Constant(expr):
 
 class Attribute(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     value: expr
     attr: str
@@ -1302,7 +1311,7 @@ class Attribute(expr):
 
 class Subscript(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     value: expr
     slice: expr | _ast.slice
@@ -1325,7 +1334,7 @@ class Subscript(expr):
 
 class Starred(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     value: expr
     ctx: expr_context
@@ -1345,7 +1354,7 @@ class Starred(expr):
 
 class Name(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     id: str
     ctx: expr_context
@@ -1371,7 +1380,7 @@ class Name(expr):
 
 class List(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     elts: list[expr]
     ctx: expr_context
@@ -1391,7 +1400,7 @@ class List(expr):
 
 class Tuple(expr):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     elts: list[expr]
     ctx: expr_context
@@ -1411,7 +1420,7 @@ class Tuple(expr):
 
 class Load(expr_context):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1421,7 +1430,7 @@ class Load(expr_context):
 
 class Store(expr_context):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1431,7 +1440,7 @@ class Store(expr_context):
 
 class Del(expr_context):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1441,7 +1450,7 @@ class Del(expr_context):
 
 class AugLoad(expr_context):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1451,7 +1460,7 @@ class AugLoad(expr_context):
 
 class AugStore(expr_context):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1461,7 +1470,7 @@ class AugStore(expr_context):
 
 class Param(expr_context):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1471,7 +1480,7 @@ class Param(expr_context):
 
 class Slice(slice):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     lower: expr | None
     upper: expr | None
@@ -1498,7 +1507,7 @@ class Slice(slice):
 
 class And(boolop):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1508,7 +1517,7 @@ class And(boolop):
 
 class Or(boolop):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1518,7 +1527,7 @@ class Or(boolop):
 
 class Add(operator):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1528,7 +1537,7 @@ class Add(operator):
 
 class Sub(operator):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1538,7 +1547,7 @@ class Sub(operator):
 
 class Mult(operator):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1548,7 +1557,7 @@ class Mult(operator):
 
 class MatMult(operator):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1558,7 +1567,7 @@ class MatMult(operator):
 
 class Div(operator):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1568,7 +1577,7 @@ class Div(operator):
 
 class Mod(operator):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1578,7 +1587,7 @@ class Mod(operator):
 
 class Pow(operator):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1588,7 +1597,7 @@ class Pow(operator):
 
 class LShift(operator):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1598,7 +1607,7 @@ class LShift(operator):
 
 class RShift(operator):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1608,7 +1617,7 @@ class RShift(operator):
 
 class BitOr(operator):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1618,7 +1627,7 @@ class BitOr(operator):
 
 class BitXor(operator):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1628,7 +1637,7 @@ class BitXor(operator):
 
 class BitAnd(operator):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1638,7 +1647,7 @@ class BitAnd(operator):
 
 class FloorDiv(operator):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1648,7 +1657,7 @@ class FloorDiv(operator):
 
 class Invert(unaryop, AST):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1658,7 +1667,7 @@ class Invert(unaryop, AST):
 
 class Not(unaryop, AST):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1668,7 +1677,7 @@ class Not(unaryop, AST):
 
 class UAdd(unaryop, AST):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1678,7 +1687,7 @@ class UAdd(unaryop, AST):
 
 class USub(unaryop, AST):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1688,7 +1697,7 @@ class USub(unaryop, AST):
 
 class Eq(cmpop):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1698,7 +1707,7 @@ class Eq(cmpop):
 
 class NotEq(cmpop):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1708,7 +1717,7 @@ class NotEq(cmpop):
 
 class Lt(cmpop):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1718,7 +1727,7 @@ class Lt(cmpop):
 
 class LtE(cmpop):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1728,7 +1737,7 @@ class LtE(cmpop):
 
 class Gt(cmpop):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1738,7 +1747,7 @@ class Gt(cmpop):
 
 class GtE(cmpop):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1748,7 +1757,7 @@ class GtE(cmpop):
 
 class Is(cmpop):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1758,7 +1767,7 @@ class Is(cmpop):
 
 class IsNot(cmpop):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1768,7 +1777,7 @@ class IsNot(cmpop):
 
 class In(cmpop):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1778,7 +1787,7 @@ class In(cmpop):
 
 class NotIn(cmpop):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     def __init__(self, *args: _Never, **attributes: object) -> None: ...
     if sys.version_info >= (3, 15):
@@ -1788,7 +1797,7 @@ class NotIn(cmpop):
 
 class comprehension(AST):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     target: expr
     iter: expr
@@ -1811,7 +1820,7 @@ class comprehension(AST):
 
 class ExceptHandler(excepthandler):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     type: expr | None
     name: Name | None
@@ -1834,7 +1843,7 @@ class ExceptHandler(excepthandler):
 
 class arguments(AST):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     args: list[Name]
     posonlyargs: list[Name]
@@ -1866,7 +1875,7 @@ class arguments(AST):
 
 class keyword(AST):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     arg: str | None
     value: expr
@@ -1890,7 +1899,7 @@ class keyword(AST):
 
 class alias(AST):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     name: str
     asname: str | None
@@ -1914,7 +1923,7 @@ class alias(AST):
 
 class withitem(AST):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     context_expr: expr
     optional_vars: expr | None
@@ -1931,7 +1940,7 @@ class withitem(AST):
 
 class match_case(AST):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     pattern: _Pattern
     guard: expr | None
@@ -1951,7 +1960,7 @@ class match_case(AST):
 
 class MatchValue(pattern):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     value: expr
     if sys.version_info < (3, 10):
@@ -1973,7 +1982,7 @@ class MatchValue(pattern):
 
 class MatchSingleton(pattern):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     value: object
     if sys.version_info < (3, 10):
@@ -1995,7 +2004,7 @@ class MatchSingleton(pattern):
 
 class MatchSequence(pattern):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     patterns: list[pattern]
     if sys.version_info < (3, 10):
@@ -2017,7 +2026,7 @@ class MatchSequence(pattern):
 
 class MatchMapping(pattern):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     keys: list[expr]
     patterns: list[pattern]
@@ -2045,7 +2054,7 @@ class MatchMapping(pattern):
 
 class MatchClass(pattern):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     cls: expr
     patterns: list[pattern]
@@ -2076,7 +2085,7 @@ class MatchClass(pattern):
 
 class MatchStar(pattern):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     name: str | None
     if sys.version_info < (3, 10):
@@ -2098,7 +2107,7 @@ class MatchStar(pattern):
 
 class MatchAs(pattern):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     pattern: _Pattern | None
     name: str | None
@@ -2123,7 +2132,7 @@ class MatchAs(pattern):
 
 class MatchOr(pattern):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     patterns: list[pattern]
     if sys.version_info < (3, 10):
@@ -2145,7 +2154,7 @@ class MatchOr(pattern):
 
 class type_ignore(TypeIgnore):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     if sys.version_info < (3, 8):
         lineno: int | None
@@ -2158,7 +2167,7 @@ class type_ignore(TypeIgnore):
 
 class TypeVar(type_param):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     name: str
     bound: expr | None
@@ -2186,7 +2195,7 @@ class TypeVar(type_param):
 
 class ParamSpec(type_param):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     name: str
     default_value: expr | None
@@ -2211,7 +2220,7 @@ class ParamSpec(type_param):
 
 class TypeVarTuple(type_param):
     _fields: _ClassVar[tuple[str, ...]]
-    _field_types: _ClassVar[dict[str, object]]
+    _field_types: _ClassVar[dict[str, _FieldType]]
     _attributes: _ClassVar[tuple[str, ...]]
     name: str
     default_value: expr | None
