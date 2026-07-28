@@ -16,6 +16,7 @@ exec(open(versionfile).read())
 setup(name='gast',  # gast, daou naer!
       version=__version__,
       packages=['gast'],
+      package_data={'gast': ['*.pyi', 'py.typed']},
       description='Python AST that abstracts the underlying Python version',
       long_description='''
 A generic AST to represent Python2 and Python3's Abstract Syntax Tree(AST).

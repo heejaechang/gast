@@ -37,6 +37,20 @@ Three notable exceptions:
 3. ``gast.gast_to_ast`` and ``gast.ast_to_gast`` can be used to convert
        from one ast to the other, back and forth.
 
+Typing
+------
+
+GAST ships type information for its package-level API and the ``gast.gast``
+module. The version-specific translator modules and unparser implementation
+remain dynamically typed.
+
+Generated constructors intentionally accept partially initialized nodes, so
+field presence depends on runtime construction state and cannot be expressed by
+Python's static type system. GAST also preserves the standard library's AST
+base-class identities; visitor callback types therefore cannot distinguish a
+GAST subtree from an arbitrary standard-library AST subtree. Conversion and
+unparsing entry points are narrowed to the concrete generated GAST classes.
+
 Version Compatibility
 ---------------------
 
